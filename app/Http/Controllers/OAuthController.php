@@ -38,8 +38,15 @@ class OAuthController extends Controller
             ]
         ];
 
+        Log::info("client_id: ${client_id}");
+        Log::info("client_secret: ${client_secret}");
+        Log::info("redirect_uri: ${redirect_uri}");
+
+        $oauth_access_api_uri = config('slack.oauth_access_api_uri');
+        Log::info("oauth_access_api_uri: ${oauth_access_api_uri}");
+
         // HTTP POSTリクエスト
-        $oauth_response = Http::post(config('oauth_access_api_uri'), $params);
+        $oauth_response = Http::post($oauth_access_api_uri, $params);
         $body = json_decode($oauth_response->getBody(), true);
 
         if (!$body['ok'])
