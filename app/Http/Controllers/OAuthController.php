@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OAuthController extends Controller
 {
@@ -14,20 +16,18 @@ class OAuthController extends Controller
 
     public function auth(Request $request)
     {
-        \Log::info("request: ${request}");
+        Log::info("request: ${request}");
 
         $code = $request->input('code');
         $state = $request->input('state');
 
-        \Log::info("code: ${code}");
-        \Log::info("state: ${state}");
+        Log::info("code: ${code}");
+        Log::info("state: ${state}");
 
         if ($request->filled('error'))
         {
             return response('slack returned error response.', 500);
         }
-
-        $client = new \GuzzleHttp\Client();
 
         $params = [
             'form_params' => [
@@ -39,7 +39,7 @@ class OAuthController extends Controller
         ];
 
         // HTTP POSTリクエスト
-        $oauth_response = $client->request('POST', config('oauth_access_api_uri'), $params);
+        $oauth_response = Http::post(config('oauth_access_api_uri'), $params);
         $body = json_decode($oauth_response->getBody(), true);
 
         if (!$body['ok'])
@@ -50,8 +50,8 @@ class OAuthController extends Controller
         $access_token = $body['access_token'];
         $user_id = $body['authed_user']['id'];
 
-        \Log::info("access_token: ${access_token}");
-        \Log::info("user_id: ${user_id}");
+        Log::info("access_token: ${access_token}");
+        Log::info("user_id: ${user_id}");
 
         return "ok";
     }
