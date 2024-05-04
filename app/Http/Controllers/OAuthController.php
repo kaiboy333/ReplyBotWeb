@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class OAuthController extends Controller
@@ -29,33 +28,39 @@ class OAuthController extends Controller
             return response('slack returned error response.', 500);
         }
 
-        $params = [
-            'form_params' => [
-                'client_id' => config('slack.client_id'),
-                'client_secret' => config('slack.client_secret'),
-                'code' => $code,
-                'redirect_uri' => config('redirect_uri'),    
-            ]
-        ];
+        $client_id = config('slack.client_id');
+        $client_secret = config('slack.client_secret');
 
         Log::info("client_id: ${client_id}");
         Log::info("client_secret: ${client_secret}");
-        Log::info("redirect_uri: ${redirect_uri}");
 
         $oauth_access_api_uri = config('slack.oauth_access_api_uri');
         Log::info("oauth_access_api_uri: ${oauth_access_api_uri}");
 
+        $client = new \GuzzleHttp\Client();
+
         // HTTP POSTリクエスト
-        $oauth_response = Http::post($oauth_access_api_uri, $params);
-        $body = json_decode($oauth_response->getBody(), true);
+        $oauth_response = $client->request('POST', $oauth_access_api_uri, [
+            'form_params' => [
+                'code' => $code,
+                'client_id' => $client_id,
+                'client_secret' => $client_secret,    
+            ]
+        ]);
+        $body_str = $oauth_response->getBody();
+        Log::info("body_str: ${body_str}");
+
+        $body = json_decode($body_str, true);
 
         if (!$body['ok'])
         {
-            return response('oauth returned error response.', 500);
+            return response($body['error'], 500);
         }
 
-        $access_token = $body['access_token'];
-        $user_id = $body['authed_user']['id'];
+        $authed_user = $body['authed_user'];
+        $access_token = $authed_user['access_token'];
+        $user_id = $authed_user['id'];
+        $team_id = $body['team']['id'];
 
         Log::info("access_token: ${access_token}");
         Log::info("user_id: ${user_id}");
