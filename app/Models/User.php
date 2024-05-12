@@ -20,13 +20,4 @@ class User extends Authenticatable
         'client_id',
         'access_token',
     ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'access_token',
-    ];
 }
