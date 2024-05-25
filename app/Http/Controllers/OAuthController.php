@@ -116,6 +116,6 @@ class OAuthController extends Controller
 
         Log::info('resisted access token');
 
-        return response('resisted access token', 200);
+        return view('auth');
     }
 }
