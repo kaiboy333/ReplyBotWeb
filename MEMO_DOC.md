@@ -42,7 +42,7 @@ sudo chmod g+rw /var/www/<プロジェクト名>/database/database.sqlite
 
 ## Let's Encryptoがうまくいかない
 ```
-[ec2-user@ip-172-31-13-2 public]$ sudo certbot certonly --standalone
+$ sudo certbot certonly --standalone
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Plugins selected: Authenticator standalone, Installer None
 Please enter in your domain name(s) (comma and/or space separated)  (Enter 'c'
